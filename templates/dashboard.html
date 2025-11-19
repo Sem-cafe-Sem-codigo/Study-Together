@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Study Together</title>
+    <link rel="stylesheet" href="/static/dashboard.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <h2>Study Together</h2>
+        </div>
+
+        <div class="sidebar-menu">
+          <div class="menu-section">
+            <a href="dashboard" class="menu-item">
+              <i class="fas fa-home"></i>
+              <span>Inicio</span>
+            </a>
+            <!-- Seção do Perfil -->
+            <div class="menu-section">
+              <a href="perfil" class="menu-item">
+                <i class="fas fa-user"></i>
+                <span>Meu Perfil</span>
+              </a>
+            </div>
+            <div class="menu-item">
+              <i class="fas fa-graduation-cap"></i>
+              <span>Meus resumos</span>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <a href="#" class="menu-item">
+              <i class="fas fa-book"></i>
+              <span>Materiais</span>
+            </a>
+            <div class="menu-item">
+              <i class="fas fa-comments"></i>
+              <span>Chat</span>
+            </div>
+            <div class="menu-item">
+              <i class="fas fa-hourglass"></i>
+              <span>Vestibulares</span>
+            </div>
+            <a href="{{ url_for('study_tracker') }}" class="menu-item">
+              <i class="fas fa-chart-line"></i>
+              <span>Monitoramento</span>
+            </a>
+            <a href="{{ url_for('study') }}" class="menu-item">
+              <i class="fas fa-users"></i>
+              <span>Salas de Estudo</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <!-- Header -->
+        <header class="main-header">
+          <div class="header-left">
+            <h1>Bem-vindo, Usuário!</h1>
+            <p>Pronto para sua sessão de estudos?</p>
+          </div>
+          <div class="header-right">
+            <div class="user-info">
+              <img
+                src="https://ui-avatars.com/api/?name=Usuário&background=4F6DF5&color=fff"
+                alt="Usuário"
+              />
+              <span>Usuário</span>
+              <div class="user-menu">
+                <a href="templates\perfil.html">Meu Perfil</a>
+                <a href="logout">Sair</a>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Content Area -->
+        <div class="content-area">
+          <!-- Study Progress -->
+          <div class="content-section">
+            <h2>Seu Progresso de Estudos</h2>
+            <div class="progress-cards">
+              <div class="progress-card">
+                <div class="progress-info">
+                  <h3>HTML Básico</h3>
+                  <p>Concluído: 75%</p>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: 75%"></div>
+                </div>
+              </div>
+              <div class="progress-card">
+                <div class="progress-info">
+                  <h3>CSS Intermediário</h3>
+                  <p>Concluído: 45%</p>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: 45%"></div>
+                </div>
+              </div>
+              <div class="progress-card">
+                <div class="progress-info">
+                  <h3>JavaScript Básico</h3>
+                  <p>Concluído: 30%</p>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: 30%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Study Schedule -->
+          <div class="content-section">
+            <h2>Próximas Sessões</h2>
+            <div class="schedule">
+              <div class="schedule-list">
+                <div class="schedule-item">
+                  <div class="schedule-time">
+                    <span class="time">14:00 - 16:00</span>
+                    <span class="date">Hoje</span>
+                  </div>
+                  <div class="schedule-details">
+                    <h4>Desenvolvimento Front-end</h4>
+                    <p>HTML e CSS avançado</p>
+                  </div>
+                </div>
+                <div class="schedule-item">
+                  <div class="schedule-time">
+                    <span class="time">09:00 - 11:00</span>
+                    <span class="date">Amanhã</span>
+                  </div>
+                  <div class="schedule-details">
+                    <h4>JavaScript Básico</h4>
+                    <p>Variáveis, funções e eventos</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,325 @@
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+import json
+import os
+from datetime import datetime
+import hashlib
+
+app = Flask(__name__)
+app.secret_key = 'study_together_secret_key'
+
+# Arquivo para simular banco de dados
+USERS_FILE = 'users.json'
+
+def load_users():
+    if os.path.exists(USERS_FILE):
+        with open(USERS_FILE, 'r') as f:
+            return json.load(f)
+    return {}
+
+def save_users(users):
+    with open(USERS_FILE, 'w') as f:
+        json.dump(users, f, indent=4)
+
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
+@app.route('/')
+def index():
+    return redirect(url_for('landing'))
+
+@app.route('/landing')
+def landing():
+    return render_template('landing.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        
+        users = load_users()
+        
+        if email in users and users[email]['password'] == hash_password(password):
+            session['user'] = {
+                'email': email,
+                'name': users[email]['name']
+            }
+            return redirect(url_for('dashboard'))
+        else:
+            return render_template('login.html', error="Email ou senha incorretos")
+    
+    return render_template('login.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
+        interests = request.form.get('interests', '')
+        level = request.form.get('level', 'iniciante')
+        
+        if password != confirm_password:
+            return render_template('register.html', error="As senhas não coincidem")
+        
+        users = load_users()
+        
+        if email in users:
+            return render_template('register.html', error="Este email já está cadastrado")
+        
+        users[email] = {
+            'name': name,
+            'password': hash_password(password),
+            'interests': interests,
+            'level': level,
+            'points': 0,
+            'streak': 0,
+            'created_at': datetime.now().isoformat()
+        }
+        
+        save_users(users)
+        
+        session['user'] = {
+            'email': email,
+            'name': name
+        }
+        
+        return redirect(url_for('dashboard'))
+    
+    return render_template('register.html')
+
+@app.route('/dashboard')
+def dashboard():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    
+    return render_template('dashboard.html')
+
+@app.route('/materiais')
+def materiais():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    
+    return "Página de Materiais - Em desenvolvimento"
+
+@app.route('/perfil')
+def perfil():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    
+    users = load_users()
+    user_email = session['user']['email']
+    user_data = users.get(user_email, {})
+    data_formatada = datetime.fromisoformat(user_data['created_at']).date()
+
+    return render_template('perfil.html', user_data=user_data, data_formatada=data_formatada)
+
+@app.route('/perfil/edit', methods=['GET', 'POST'])
+def edit_perfil():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    
+    users = load_users()
+    user_email = session['user']['email']
+    user_data = users.get(user_email, {})
+    
+    if request.method == 'POST':
+        name = request.form['name']
+        interests = request.form.get('interests', '')
+        level = request.form.get('level', 'iniciante')
+        
+        # Atualizar dados do usuário
+        users[user_email]['name'] = name
+        users[user_email]['interests'] = interests
+        users[user_email]['level'] = level
+        
+        # Atualizar sessão
+        session['user']['name'] = name
+        
+        save_users(users)
+        
+        return redirect(url_for('perfil'))
+    
+    return render_template('edit_perfil.html', user_data=user_data)
+
+@app.route('/perfil/change_password', methods=['POST'])
+def change_password():
+    if 'user' not in session:
+        return jsonify({'success': False, 'message': 'Usuário não autenticado'})
+    
+    users = load_users()
+    user_email = session['user']['email']
+    
+    current_password = request.form['current_password']
+    new_password = request.form['new_password']
+    confirm_password = request.form['confirm_password']
+    
+    # Verificar senha atual
+    if users[user_email]['password'] != hash_password(current_password):
+        return jsonify({'success': False, 'message': 'Senha atual incorreta'})
+    
+    # Verificar se as novas senhas coincidem
+    if new_password != confirm_password:
+        return jsonify({'success': False, 'message': 'As novas senhas não coincidem'})
+    
+    # Atualizar senha
+    users[user_email]['password'] = hash_password(new_password)
+    save_users(users)
+    
+    return jsonify({'success': True, 'message': 'Senha alterada com sucesso'})
+
+# Novas rotas adicionadas
+@app.route('/study_tracker')
+def study_tracker():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    
+    # Dados mock para exemplo
+    today_stats = {
+        'total_time': 125,  # minutos
+        'session_count': 3,
+        'average_efficiency': 4
+    }
+    
+    recent_sessions = [
+        {
+            'time': 45,
+            'date': 'Hoje, 14:30',
+            'subject': 'Programação',
+            'description': 'Funções e loops em Python',
+            'efficiency': 4
+        },
+        {
+            'time': 30,
+            'date': 'Hoje, 10:15',
+            'subject': 'Matemática',
+            'description': 'Cálculo diferencial',
+            'efficiency': 3
+        },
+        {
+            'time': 50,
+            'date': 'Ontem, 16:20',
+            'subject': 'Inglês',
+            'description': 'Vocabulário técnico',
+            'efficiency': 5
+        }
+    ]
+    
+    return render_template('conteudo.html', 
+                         today_stats=today_stats,
+                         recent_sessions=recent_sessions,
+                         streak=7)
+
+@app.route('/study')
+def study():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    
+    # Dados mock para salas de estudo
+    study_rooms = [
+        {
+            'id': 1,
+            'name': 'Sala de Programação Avançada',
+            'description': 'Estudo focado em algoritmos e estruturas de dados',
+            'participants': 3,
+            'max_participants': 6,
+            'level': 'Avançado',
+            'focus_timer': True,
+            'current_timer': '25:00',
+            'video_enabled': True,
+            'tags': ['Python', 'Algoritmos', 'Estruturas de Dados']
+        },
+        {
+            'id': 2,
+            'name': 'Matemática para Vestibulares',
+            'description': 'Revisão de conteúdos de matemática do ensino médio',
+            'participants': 5,
+            'max_participants': 8,
+            'level': 'Intermediário',
+            'focus_timer': True,
+            'current_timer': '15:00',
+            'video_enabled': False,
+            'tags': ['Matemática', 'Vestibular', 'Revisão']
+        },
+        {
+            'id': 3,
+            'name': 'Inglês Conversação',
+            'description': 'Prática de conversação em inglês para todos os níveis',
+            'participants': 2,
+            'max_participants': 4,
+            'level': 'Todos os níveis',
+            'focus_timer': False,
+            'current_timer': '00:00',
+            'video_enabled': True,
+            'tags': ['Inglês', 'Conversação', 'Idiomas']
+        }
+    ]
+    
+    recent_rooms = [
+        {
+            'id': 1,
+            'name': 'Sala de Programação Avançada',
+            'last_joined': '2 horas atrás',
+            'total_time': '3h 45min'
+        }
+    ]
+    
+    return render_template('estudo.html', 
+                         study_rooms=study_rooms,
+                         recent_rooms=recent_rooms)
+
+@app.route('/study_room/<int:room_id>')
+def study_room(room_id):
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    
+    # Dados mock para a sala específica
+    room_data = {
+        'id': room_id,
+        'name': 'Sala de Programação Avançada',
+        'description': 'Estudo focado em algoritmos e estruturas de dados',
+        'subject': 'Programação',
+        'participants': [
+            {'name': session['user']['name'], 'avatar': session['user']['name'][:2].upper()},
+            {'name': 'João Silva', 'avatar': 'JS'},
+            {'name': 'Maria Santos', 'avatar': 'MS'}
+        ],
+        'max_participants': 6,
+        'timer_active': True,
+        'current_timer': '25:00',
+        'focus_timer': True,
+        'video_enabled': True,
+        'chat_messages': [
+            {
+                'type': 'system',
+                'message': 'Maria Santos entrou na sala',
+                'time': '14:25'
+            },
+            {
+                'type': 'user',
+                'user': 'João Silva',
+                'message': 'Vamos focar no estudo de algoritmos hoje!',
+                'time': '14:26'
+            }
+        ]
+    }
+    
+    return render_template('sala.html', room=room_data)
+
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect(url_for('landing'))
+
+# Função para formatar data (adicionar ao app.py)
+@app.template_filter('format_date')
+def format_date_filter(date_string):
+    try:
+        date_obj = datetime.fromisoformat(date_string)
+        return date_obj.strftime('%d/%m/%Y')
+    except:
+        return date_string
+
+if __name__ == '__main__':
+    app.run(debug=True)

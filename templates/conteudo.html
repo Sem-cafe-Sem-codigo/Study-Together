@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoramento - Study Together</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Study Together</h2>
+            </div>
+            
+            <div class="sidebar-menu">
+                <div class="menu-section">
+                    <h3>Principal</h3>
+                    <a href="{{ url_for('dashboard') }}" class="menu-item">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="{{ url_for('study_tracker') }}" class="menu-item active">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Monitoramento</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <h3>Estudos</h3>
+                    <a href="{{ url_for('study') }}" class="menu-item">
+                        <i class="fas fa-users"></i>
+                        <span>Salas de Estudo</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="main-header">
+                <div class="header-left">
+                    <h1>Monitoramento de Estudos</h1>
+                    <p>Acompanhe seu progresso e mantenha a motivação</p>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <div class="avatar">
+                            {{ session.user.name[:2].upper() }}
+                        </div>
+                        <span>{{ session.user.name }}</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Timer e Controles -->
+                <div class="content-section">
+                    <div class="tracker-header">
+                        <h2>Sessão de Estudo Atual</h2>
+                        <div class="tracker-controls">
+                            <button class="btn-primary" id="startTimer">
+                                <i class="fas fa-play"></i> Iniciar Timer
+                            </button>
+                            <button class="btn-secondary" id="pauseTimer" disabled>
+                                <i class="fas fa-pause"></i> Pausar
+                            </button>
+                            <button class="btn-danger" id="stopTimer" disabled>
+                                <i class="fas fa-stop"></i> Finalizar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="timer-container">
+                        <div class="pomodoro-timer">
+                            <div class="timer-display" id="timerDisplay">25:00</div>
+                            <div class="timer-mode">
+                                <span class="mode-active">Foco</span>
+                                <span>Pausa Curta</span>
+                                <span>Pausa Longa</span>
+                            </div>
+                        </div>
+                        
+                        <div class="session-info">
+                            <div class="form-group">
+                                <label for="subject">Matéria</label>
+                                <select id="subject">
+                                    <option value="">Selecione uma matéria</option>
+                                    <option value="programacao">Programação</option>
+                                    <option value="matematica">Matemática</option>
+                                    <option value="portugues">Português</option>
+                                    <option value="ingles">Inglês</option>
+                                    <option value="outros">Outros</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="topics">Tópicos Estudados</label>
+                                <input type="text" id="topics" placeholder="Ex: Funções, Loops, Variáveis...">
+                            </div>
+                            <div class="form-group">
+                                <label for="efficiency">Eficiência</label>
+                                <div class="efficiency-stars">
+                                    <span class="star" data-rating="1">★</span>
+                                    <span class="star" data-rating="2">★</span>
+                                    <span class="star" data-rating="3">★</span>
+                                    <span class="star" data-rating="4">★</span>
+                                    <span class="star" data-rating="5">★</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estatísticas Rápidas -->
+                <div class="content-section">
+                    <h2>Estatísticas do Dia</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background-color: var(--blue-trust);">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>{{ (today_stats.total_time // 60)|int }}h {{ (today_stats.total_time % 60)|int }}min</h3>
+                                <p>Tempo Estudado Hoje</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background-color: var(--green-growth);">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>{{ today_stats.session_count }}</h3>
+                                <p>Sessões Concluídas</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background-color: var(--orange-energy);">
+                                <i class="fas fa-bullseye"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>{{ today_stats.average_efficiency }}/5</h3>
+                                <p>Eficiência Média</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background-color: var(--purple-community);">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>{{ streak }}</h3>
+                                <p>Dias Consecutivos</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progresso Semanal -->
+                <div class="content-section">
+                    <h2>Progresso Semanal</h2>
+                    <div class="weekly-progress">
+                        <div class="week-days">
+                            <div class="day">
+                                <div class="day-name">Seg</div>
+                                <div class="day-bar" style="height: 60%"></div>
+                                <div class="day-time">1h30</div>
+                            </div>
+                            <div class="day">
+                                <div class="day-name">Ter</div>
+                                <div class="day-bar" style="height: 80%"></div>
+                                <div class="day-time">2h00</div>
+                            </div>
+                            <div class="day">
+                                <div class="day-name">Qua</div>
+                                <div class="day-bar" style="height: 90%"></div>
+                                <div class="day-time">2h15</div>
+                            </div>
+                            <div class="day">
+                                <div class="day-name">Qui</div>
+                                <div class="day-bar" style="height: 70%"></div>
+                                <div class="day-time">1h45</div>
+                            </div>
+                            <div class="day">
+                                <div class="day-name">Sex</div>
+                                <div class="day-bar" style="height: 50%"></div>
+                                <div class="day-time">1h15</div>
+                            </div>
+                            <div class="day">
+                                <div class="day-name">Sáb</div>
+                                <div class="day-bar" style="height: 40%"></div>
+                                <div class="day-time">1h00</div>
+                            </div>
+                            <div class="day">
+                                <div class="day-name">Dom</div>
+                                <div class="day-bar" style="height: 30%"></div>
+                                <div class="day-time">45min</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Histórico de Sessões -->
+                <div class="content-section">
+                    <h2>Últimas Sessões</h2>
+                    <div class="sessions-history">
+                        {% for session in recent_sessions %}
+                        <div class="session-item">
+                            <div class="session-time">
+                                <span class="duration">{{ session.time }}min</span>
+                                <span class="date">{{ session.date }}</span>
+                            </div>
+                            <div class="session-details">
+                                <h4>{{ session.subject }}</h4>
+                                <p>{{ session.description }}</p>
+                                <div class="session-meta">
+                                    <span class="efficiency">
+                                        {% for i in range(session.efficiency) %}⭐{% endfor %}
+                                    </span>
+                                    <span class="points">+{{ (session.time // 15) * session.efficiency }} pontos</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Timer Pomodoro
+        class PomodoroTimer {
+            constructor() {
+                this.timeLeft = 25 * 60;
+                this.isRunning = false;
+                this.interval = null;
+                
+                this.elements = {
+                    timerDisplay: document.getElementById('timerDisplay'),
+                    startBtn: document.getElementById('startTimer'),
+                    pauseBtn: document.getElementById('pauseTimer'),
+                    stopBtn: document.getElementById('stopTimer')
+                };
+                
+                this.bindEvents();
+            }
+            
+            bindEvents() {
+                this.elements.startBtn.addEventListener('click', () => this.start());
+                this.elements.pauseBtn.addEventListener('click', () => this.pause());
+                this.elements.stopBtn.addEventListener('click', () => this.stop());
+            }
+            
+            start() {
+                this.isRunning = true;
+                this.elements.startBtn.disabled = true;
+                this.elements.pauseBtn.disabled = false;
+                this.elements.stopBtn.disabled = false;
+                
+                this.interval = setInterval(() => {
+                    this.timeLeft--;
+                    this.updateDisplay();
+                    
+                    if (this.timeLeft <= 0) {
+                        this.completeSession();
+                    }
+                }, 1000);
+            }
+            
+            pause() {
+                this.isRunning = false;
+                this.elements.startBtn.disabled = false;
+                this.elements.pauseBtn.disabled = true;
+                clearInterval(this.interval);
+            }
+            
+            stop() {
+                this.isRunning = false;
+                this.timeLeft = 25 * 60;
+                this.elements.startBtn.disabled = false;
+                this.elements.pauseBtn.disabled = true;
+                this.elements.stopBtn.disabled = true;
+                clearInterval(this.interval);
+                this.updateDisplay();
+            }
+            
+            completeSession() {
+                this.stop();
+                alert('Sessão concluída! Hora de uma pausa.');
+            }
+            
+            updateDisplay() {
+                const minutes = Math.floor(this.timeLeft / 60);
+                const seconds = this.timeLeft % 60;
+                this.elements.timerDisplay.textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }
+        
+        // Sistema de Avaliação por Estrelas
+        document.querySelectorAll('.star').forEach(star => {
+            star.addEventListener('click', function() {
+                const rating = this.getAttribute('data-rating');
+                document.querySelectorAll('.star').forEach(s => {
+                    if (s.getAttribute('data-rating') <= rating) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+        });
+        
+        // Inicializar timer quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            new PomodoroTimer();
+        });
+    </script>
+</body>
+</html

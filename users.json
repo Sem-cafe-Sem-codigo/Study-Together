@@ -1,0 +1,29 @@
+{
+    "analulumarques.v@gmail.com": {
+        "name": "ana luiza marques",
+        "password": "21ab6fe606bcccd127998623a13b3adf5b2fdfb25afcd45c1fcf4c5cb4459205",
+        "interests": "",
+        "level": "iniciante",
+        "points": 0,
+        "streak": 0,
+        "created_at": "2025-11-12T14:26:47.638658"
+    },
+    "maria.e.arruda6@aluno.senai.br": {
+        "name": "Maria Eduarda Marinho Arruda",
+        "password": "970cb5cb93dfc8ebe1c1f58dd63a8d270c693bc149131bf074be7777bceb7d53",
+        "interests": "Programa\u00e7\u00e3o",
+        "level": "iniciante",
+        "points": 0,
+        "streak": 0,
+        "created_at": "2025-11-13T10:14:05.235870"
+    },
+    "getulioditador@gmail.com": {
+        "name": "getulio vargas",
+        "password": "54d5cb2d332dbdb4850293caae4559ce88b65163f1ea5d4e4b3ac49d772ded14",
+        "interests": "Politico",
+        "level": "avan\u00e7ado",
+        "points": 0,
+        "streak": 0,
+        "created_at": "2025-11-19T15:32:57.261294"
+    }
+}

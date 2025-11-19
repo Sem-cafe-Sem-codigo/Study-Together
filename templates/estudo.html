@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salas de Estudo - Study Together</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Study Together</h2>
+            </div>
+            
+            <div class="sidebar-menu">
+                <div class="menu-section">
+                    <h3>Principal</h3>
+                    <a href="{{ url_for('dashboard') }}" class="menu-item">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="{{ url_for('study_tracker') }}" class="menu-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Monitoramento</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <h3>Estudos</h3>
+                    <a href="{{ url_for('study') }}" class="menu-item active">
+                        <i class="fas fa-users"></i>
+                        <span>Salas de Estudo</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="main-header">
+                <div class="header-left">
+                    <h1>Salas de Estudo</h1>
+                    <p>Encontre companhia para estudar e mantenha o foco</p>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <div class="avatar">
+                            {{ session.user.name[:2].upper() }}
+                        </div>
+                        <span>{{ session.user.name }}</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Banner de Boas-vindas -->
+                <div class="content-section">
+                    <div class="welcome-banner">
+                        <div class="banner-content">
+                            <h2>Transforme a solidão em colaboração! 👥</h2>
+                            <p>Junte-se a estudantes com objetivos similares e alcance mais juntos</p>
+                        </div>
+                        <div class="banner-stats">
+                            <div class="stat">
+                                <div class="stat-number">42</div>
+                                <div class="stat-label">Estudantes online</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-number">18</div>
+                                <div class="stat-label">Salas ativas</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Salas Recentes -->
+                {% if recent_rooms %}
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2>Continue de Onde Parou</h2>
+                        <p>Suas salas recentes</p>
+                    </div>
+                    <div class="rooms-grid">
+                        {% for room in recent_rooms %}
+                        <div class="room-card recent-room">
+                            <div class="room-header">
+                                <h3>{{ room.name }}</h3>
+                                <span class="room-badge recent">Continuar</span>
+                            </div>
+                            <div class="room-meta">
+                                <span class="last-joined">Última vez: {{ room.last_joined }}</span>
+                                <span class="total-time">{{ room.total_time }} estudados</span>
+                            </div>
+                            <div class="room-actions">
+                                <a href="{{ url_for('study_room', room_id=room.id) }}" class="btn-primary btn-sm">
+                                    <i class="fas fa-door-open"></i> Entrar
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Todas as Salas -->
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2>Salas Disponíveis</h2>
+                        <p>Encontre a sala perfeita para seu estudo</p>
+                    </div>
+
+                    <!-- Grid de Salas -->
+                    <div class="rooms-grid">
+                        {% for room in study_rooms %}
+                        <div class="room-card">
+                            <div class="room-header">
+                                <h3>{{ room.name }}</h3>
+                                <div class="room-status">
+                                    {% if room.participants < room.max_participants %}
+                                    <span class="room-badge available">Disponível</span>
+                                    {% else %}
+                                    <span class="room-badge full">Lotada</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <p class="room-description">{{ room.description }}</p>
+                            
+                            <div class="room-details">
+                                <div class="detail-item">
+                                    <i class="fas fa-users"></i>
+                                    <span>{{ room.participants }}/{{ room.max_participants }} participantes</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    <span>{{ room.level }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span>
+                                        {% if room.focus_timer %}
+                                        Pomodoro: {{ room.current_timer }}
+                                        {% else %}
+                                        Livre
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-video"></i>
+                                    <span>
+                                        {% if room.video_enabled %}
+                                        Vídeo ativo
+                                        {% else %}
+                                        Apenas áudio
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="room-tags">
+                                {% for tag in room.tags %}
+                                <span class="tag">{{ tag }}</span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="room-actions">
+                                {% if room.participants < room.max_participants %}
+                                <a href="{{ url_for('study_room', room_id=room.id) }}" class="btn-primary">
+                                    <i class="fas fa-door-open"></i> Entrar na Sala
+                                </a>
+                                {% else %}
+                                <button class="btn-secondary" disabled>
+                                    <i class="fas fa-lock"></i> Sala Lotada
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
