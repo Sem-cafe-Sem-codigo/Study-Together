@@ -1,0 +1,125 @@
+/* Extends dashboard.css */
+
+.chat-container {
+    max-width: 800px;
+    margin: 0 auto;
+    height: calc(100vh - 200px);
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.message {
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 12px;
+    max-width: 80%;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message.user {
+    background: var(--blue-trust, #4F6DF5);
+    color: white;
+    margin-left: auto;
+    text-align: right;
+}
+
+.message.assistant {
+    background: white;
+    color: #333;
+    border: 1px solid #e0e0e0;
+}
+
+.message-header {
+    font-weight: 600;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
+.chat-input-area {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.chat-input-area input {
+    flex: 1;
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1em;
+    transition: all 0.3s ease;
+}
+
+.chat-input-area input:focus {
+    outline: none;
+    border-color: var(--blue-trust, #4F6DF5);
+}
+
+.chat-input-area button {
+    padding: 15px 30px;
+    background: var(--blue-trust, #4F6DF5);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.chat-input-area button:hover:not(:disabled) {
+    background: #3d5ae0;
+    transform: translateY(-2px);
+}
+
+.chat-input-area button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.loading {
+    display: none;
+    text-align: center;
+    padding: 10px;
+    color: #666;
+}
+
+.loading.active {
+    display: block;
+}
+
+.stuart-intro {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+.stuart-intro h2 {
+    color: var(--blue-trust, #4F6DF5);
+    margin-bottom: 10px;
+}
+
+.stuart-intro .icon {
+    font-size: 3em;
+    margin-bottom: 20px;
+}

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stuart - Chat IA - Study Together</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stuart.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Study Together</h2>
+            </div>
+            
+            <div class="sidebar-menu">
+                <div class="menu-section">
+                    <h3>Principal</h3>
+                    <a href="{{ url_for('dashboard') }}" class="menu-item">
+                        <i class="fas fa-home"></i>
+                        <span>Inicio</span>
+                    </a>
+                    <a href="{{ url_for('perfil') }}" class="menu-item">
+                        <i class="fas fa-user"></i>
+                        <span>Meu Perfil</span>
+                    </a>
+                    <a href="{{ url_for('study_tracker') }}" class="menu-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Monitoramento</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <h3>Estudos</h3>
+                     <a href="{{ url_for('materiais') }}" class="menu-item">
+                        <i class="fas fa-book"></i>
+                        <span>Materiais</span>
+                    </a>
+                    <a href="{{ url_for('study') }}" class="menu-item">
+                        <i class="fas fa-users"></i>
+                        <span>Salas de Estudo</span>
+                    </a>
+                    <a href="{{ url_for('stuart') }}" class="menu-item active">
+                        <i class="fas fa-robot"></i>
+                        <span>Chat IA (Stuart)</span>
+                    </a>
+                    <a href="{{ url_for('ranking') }}" class="menu-item">
+                        <i class="fas fa-trophy"></i>
+                        <span>Ranking</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="main-header">
+                <div class="header-left">
+                    <h1>Stuart - Seu Assistente de Estudos</h1>
+                    <p>Tire suas dúvidas e receba ajuda personalizada</p>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <div class="avatar">
+                            {{ session.user.name[:2].upper() if session.user else 'U' }}
+                        </div>
+                        <span>{{ session.user.name if session.user else 'Usuário' }}</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="stuart-intro">
+                            <div class="icon">🤖</div>
+                            <h2>Olá! Eu sou o Stuart!</h2>
+                            <p>Sou seu assistente de estudos baseado em IA.</p>
+                            <p>Posso ajudar você com dúvidas, explicações de conceitos,<br>
+                            sugestões de métodos de estudo e muito mais!</p>
+                            <p style="margin-top: 20px; font-style: italic;">
+                                Digite sua pergunta abaixo para começar...
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="loading" id="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Stuart está pensando...
+                    </div>
+                    
+                    <div class="chat-input-area">
+                        <input 
+                            type="text" 
+                            id="messageInput" 
+                            placeholder="Digite sua pergunta ou dúvida..."
+                            maxlength="500"
+                        >
+                        <button id="sendButton">
+                            <i class="fas fa-paper-plane"></i> Enviar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const loading = document.getElementById('loading');
+
+        // Função para adicionar mensagem na tela
+        function addMessage(content, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+            
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'message-header';
+            headerDiv.textContent = isUser ? 'Você' : 'Stuart';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.textContent = content;
+            
+            messageDiv.appendChild(headerDiv);
+            messageDiv.appendChild(contentDiv);
+            chatMessages.appendChild(messageDiv);
+            
+            // Scroll para a última mensagem
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Função para enviar mensagem
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            
+            if (!message) return;
+            
+            // Adicionar mensagem do usuário
+            addMessage(message, true);
+            messageInput.value = '';
+            
+            // Desabilitar input enquanto processa
+            sendButton.disabled = true;
+            messageInput.disabled = true;
+            loading.classList.add('active');
+            
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    addMessage(data.reply, false);
+                } else {
+                    addMessage(data.error || 'Desculpe, ocorreu um erro. Tente novamente.', false);
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                addMessage('Desculpe, não consegui me conectar ao servidor. Verifique sua conexão.', false);
+            } finally {
+                // Reabilitar input
+                sendButton.disabled = false;
+                messageInput.disabled = false;
+                loading.classList.remove('active');
+                messageInput.focus();
+            }
+        }
+
+        // Event listeners
+        sendButton.addEventListener('click', sendMessage);
+        
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Focar no input ao carregar
+        messageInput.focus();
+    </script>
+</body>
+</html>

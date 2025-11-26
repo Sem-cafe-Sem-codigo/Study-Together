@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking - Study Together</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='ranking.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Study Together</h2>
+            </div>
+            
+            <div class="sidebar-menu">
+                <div class="menu-section">
+                    <h3>Principal</h3>
+                    <a href="{{ url_for('dashboard') }}" class="menu-item">
+                        <i class="fas fa-home"></i>
+                        <span>Inicio</span>
+                    </a>
+                    <a href="{{ url_for('perfil') }}" class="menu-item">
+                        <i class="fas fa-user"></i>
+                        <span>Meu Perfil</span>
+                    </a>
+                    <a href="{{ url_for('study_tracker') }}" class="menu-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Monitoramento</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <h3>Estudos</h3>
+                     <a href="{{ url_for('materiais') }}" class="menu-item">
+                        <i class="fas fa-book"></i>
+                        <span>Materiais</span>
+                    </a>
+                    <a href="{{ url_for('study') }}" class="menu-item">
+                        <i class="fas fa-users"></i>
+                        <span>Salas de Estudo</span>
+                    </a>
+                    <a href="{{ url_for('stuart') }}" class="menu-item">
+                        <i class="fas fa-robot"></i>
+                        <span>Chat IA (Stuart)</span>
+                    </a>
+                    <a href="{{ url_for('ranking') }}" class="menu-item active">
+                        <i class="fas fa-trophy"></i>
+                        <span>Ranking</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="main-header">
+                <div class="header-left">
+                    <h1>Ranking de Estudantes</h1>
+                    <p>Veja sua posição e compete com outros estudantes</p>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <div class="avatar">
+                            {{ session.user.name[:2].upper() if session.user else 'U' }}
+                        </div>
+                        <span>{{ session.user.name if session.user else 'Usuário' }}</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Header do Ranking -->
+                <div class="ranking-header">
+                    <h2>🏆 Ranking Geral</h2>
+                    <p>Conquiste pontos estudando e suba no ranking!</p>
+                    <div class="ranking-stats">
+                        <div class="ranking-stat">
+                            <div class="number">{{ total_users }}</div>
+                            <div class="label">Estudantes</div>
+                        </div>
+                        {% if current_user_position %}
+                        <div class="ranking-stat">
+                            <div class="number">#{{ current_user_position }}</div>
+                            <div class="label">Sua Posição</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Pódio (Top 3) -->
+                {% if ranked_users|length >= 3 %}
+                <div class="podium">
+                    <!-- 2º Lugar -->
+                    <div class="podium-place second">
+                        <div class="trophy">🥈</div>
+                        <div class="avatar-large">{{ ranked_users[1].name[:2].upper() }}</div>
+                        <div class="name">{{ ranked_users[1].name }}</div>
+                        <div class="points">{{ ranked_users[1].points }} pts</div>
+                    </div>
+                    
+                    <!-- 1º Lugar -->
+                    <div class="podium-place first">
+                        <div class="trophy">🥇</div>
+                        <div class="avatar-large">{{ ranked_users[0].name[:2].upper() }}</div>
+                        <div class="name">{{ ranked_users[0].name }}</div>
+                        <div class="points">{{ ranked_users[0].points }} pts</div>
+                    </div>
+                    
+                    <!-- 3º Lugar -->
+                    <div class="podium-place third">
+                        <div class="trophy">🥉</div>
+                        <div class="avatar-large">{{ ranked_users[2].name[:2].upper() }}</div>
+                        <div class="name">{{ ranked_users[2].name }}</div>
+                        <div class="points">{{ ranked_users[2].points }} pts</div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Lista Completa -->
+                <div class="content-section">
+                    <h2>Classificação Completa</h2>
+                    <div class="ranking-list">
+                        {% for user in ranked_users %}
+                        <div class="ranking-item {% if user.position == current_user_position %}current-user{% endif %}">
+                            <div class="ranking-position">
+                                {% if user.position <= 3 %}
+                                    {% if user.position == 1 %}🥇
+                                    {% elif user.position == 2 %}🥈
+                                    {% elif user.position == 3 %}🥉
+                                    {% endif %}
+                                {% else %}
+                                    #{{ user.position }}
+                                {% endif %}
+                            </div>
+                            
+                            <div class="ranking-avatar">
+                                {{ user.name[:2].upper() }}
+                            </div>
+                            
+                            <div class="ranking-info">
+                                <div class="name">
+                                    {{ user.name }}
+                                    {% if user.position == current_user_position %}
+                                    <span class="ranking-badge">Você</span>
+                                    {% endif %}
+                                </div>
+                                <div class="details">
+                                    <i class="fas fa-fire"></i> {{ user.streak }} dias de sequência
+                                    • 
+                                    <i class="fas fa-graduation-cap"></i> {{ user.level|capitalize }}
+                                </div>
+                            </div>
+                            
+                            <div class="ranking-points">
+                                <div class="points">{{ user.points }}</div>
+                                <div class="label">pontos</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Como Ganhar Pontos -->
+                <div class="content-section" style="margin-top: 30px;">
+                    <h2>Como Ganhar Pontos?</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;">
+                        <div style="padding: 20px; background: white; border-radius: 12px; border-left: 4px solid #4F6DF5;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">📚</div>
+                            <h3>Estude Regularmente</h3>
+                            <p style="color: #666; margin-top: 5px;">Complete sessões de estudo para ganhar pontos</p>
+                        </div>
+                        <div style="padding: 20px; background: white; border-radius: 12px; border-left: 4px solid #2ED573;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">🔥</div>
+                            <h3>Mantenha a Sequência</h3>
+                            <p style="color: #666; margin-top: 5px;">Estude todos os dias para multiplicar seus pontos</p>
+                        </div>
+                        <div style="padding: 20px; background: white; border-radius: 12px; border-left: 4px solid #FF6B35;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">⭐</div>
+                            <h3>Alta Eficiência</h3>
+                            <p style="color: #666; margin-top: 5px;">Quanto melhor sua avaliação, mais pontos você ganha</p>
+                        </div>
+                        <div style="padding: 20px; background: white; border-radius: 12px; border-left: 4px solid #8B46FF;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">👥</div>
+                            <h3>Estude em Grupo</h3>
+                            <p style="color: #666; margin-top: 5px;">Participe de salas de estudo para ganhar bônus</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

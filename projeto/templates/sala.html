@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ room.name }} - Study Together</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='sala.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Simplificada para Sala -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Study Together</h2>
+            </div>
+            
+            <div class="sidebar-menu">
+                <div class="menu-section">
+                    <a href="{{ url_for('study') }}" class="menu-item">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Voltar para Salas</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <h3>Sala Atual</h3>
+                    <div class="room-info-sidebar">
+                        <h4><i class="fas fa-door-open"></i> {{ room.name }}</h4>
+                        <p class="room-subject"><i class="fas fa-book"></i> {{ room.subject }}</p>
+                        <div class="room-stats">
+                            <i class="fas fa-users"></i>
+                            <span>{{ room.participants|length }}/{{ room.max_participants }} participantes</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="menu-section">
+                    <h3>Participantes</h3>
+                    <div class="participants-list">
+                        {% for participant in room.participants %}
+                        <div class="participant-item">
+                            <div class="participant-avatar">
+                                {{ participant.avatar }}
+                            </div>
+                            <span class="participant-name">{{ participant.name }}</span>
+                            {% if participant.name == session.user.name %}
+                            <span class="participant-you">(Você)</span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="main-header">
+                <div class="header-left">
+                    <h1><i class="fas fa-users-cog"></i> {{ room.name }}</h1>
+                    <p><i class="fas fa-info-circle"></i> {{ room.description }}</p>
+                </div>
+                <div class="header-right">
+                    <div class="room-controls">
+                        {% if room.timer_active %}
+                        <div class="timer-display-room" id="roomTimer">
+                            <i class="fas fa-clock"></i>
+                            <span>{{ room.current_timer }}</span>
+                        </div>
+                        {% endif %}
+                        <a href="{{ url_for('study') }}" class="btn-secondary btn-sm">
+                            <i class="fas fa-sign-out-alt"></i> Sair da Sala
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-area study-room-content">
+                <!-- Área Principal de Estudo -->
+                <div class="study-room-layout">
+                    <!-- Coluna Esquerda: Video e Timer -->
+                    <div class="study-column">
+                        <!-- Timer da Sala -->
+                        {% if room.focus_timer %}
+                        <div class="content-section">
+                            <div class="pomodoro-controls">
+                                <h3><i class="fas fa-stopwatch"></i> Timer de Foco Pomodoro</h3>
+                                <div class="timer-container-room">
+                                    <div class="timer-display-large" id="focusTimer">25:00</div>
+                                    <div class="timer-controls">
+                                        <button class="btn-primary btn-sm" id="startTimer">
+                                            <i class="fas fa-play"></i> Iniciar
+                                        </button>
+                                        <button class="btn-secondary btn-sm" id="pauseTimer" disabled>
+                                            <i class="fas fa-pause"></i> Pausar
+                                        </button>
+                                        <button class="btn-danger btn-sm" id="resetTimer">
+                                            <i class="fas fa-redo"></i> Reiniciar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Área de Video (se habilitado) -->
+                        {% if room.video_enabled %}
+                        <div class="content-section">
+                            <h3><i class="fas fa-video"></i> Participantes na Videochamada</h3>
+                            <div class="video-container">
+                                <div class="video-grid">
+                                    {% for participant in room.participants %}
+                                    <div class="video-participant">
+                                        <div class="video-placeholder">
+                                            <div class="participant-avatar large">
+                                                {{ participant.avatar }}
+                                            </div>
+                                            <div class="participant-overlay">
+                                                <span class="participant-name">{{ participant.name }}</span>
+                                                {% if participant.name == session.user.name %}
+                                                <span class="you-badge">Você</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Coluna Direita: Chat -->
+                    <div class="chat-column">
+                        <div class="content-section chat-section">
+                            <div class="chat-header">
+                                <h3><i class="fas fa-comments"></i> Chat da Sala</h3>
+                                <div class="chat-info">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>{{ room.chat_messages|length }} mensagens</span>
+                                </div>
+                            </div>
+                            
+                            <div class="chat-messages" id="chatMessages">
+                                {% for message in room.chat_messages %}
+                                <div class="chat-message {{ message.type }}">
+                                    {% if message.type == 'user' %}
+                                    <div class="message-avatar">
+                                        {{ message.user[:2].upper() }}
+                                    </div>
+                                    {% endif %}
+                                    <div class="message-content">
+                                        <div class="message-header">
+                                            <span class="message-user">{{ message.user }}</span>
+                                            <span class="message-time">{{ message.time }}</span>
+                                        </div>
+                                        <div class="message-text">{{ message.message }}</div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="chat-input">
+                                <input type="text" id="chatInput" placeholder="Digite sua mensagem..." maxlength="500">
+                                <button class="btn-primary" id="sendMessage">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Timer Pomodoro para a sala
+        class RoomTimer {
+            constructor() {
+                this.timeLeft = 25 * 60;
+                this.isRunning = false;
+                this.interval = null;
+                
+                this.elements = {
+                    timerDisplay: document.getElementById('focusTimer'),
+                    startBtn: document.getElementById('startTimer'),
+                    pauseBtn: document.getElementById('pauseTimer'),
+                    resetBtn: document.getElementById('resetTimer')
+                };
+                
+                this.bindEvents();
+            }
+            
+            bindEvents() {
+                this.elements.startBtn.addEventListener('click', () => this.start());
+                this.elements.pauseBtn.addEventListener('click', () => this.pause());
+                this.elements.resetBtn.addEventListener('click', () => this.reset());
+            }
+            
+            start() {
+                this.isRunning = true;
+                this.elements.startBtn.disabled = true;
+                this.elements.pauseBtn.disabled = false;
+                
+                this.interval = setInterval(() => {
+                    this.timeLeft--;
+                    this.updateDisplay();
+                    
+                    if (this.timeLeft <= 0) {
+                        this.completeSession();
+                    }
+                }, 1000);
+            }
+            
+            pause() {
+                this.isRunning = false;
+                this.elements.startBtn.disabled = false;
+                this.elements.pauseBtn.disabled = true;
+                clearInterval(this.interval);
+            }
+            
+            reset() {
+                this.pause();
+                this.timeLeft = 25 * 60;
+                this.updateDisplay();
+            }
+            
+            completeSession() {
+                this.reset();
+                // Adicionar mensagem de sistema no chat
+                this.addSystemMessage('Sessão concluída! Hora de uma pausa.');
+            }
+            
+            updateDisplay() {
+                const minutes = Math.floor(this.timeLeft / 60);
+                const seconds = this.timeLeft % 60;
+                this.elements.timerDisplay.textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            addSystemMessage(text) {
+                const chatMessages = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'chat-message system';
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <div class="message-text">${text}</div>
+                    </div>
+                `;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
+        
+        // Sistema de Chat
+        document.getElementById('sendMessage').addEventListener('click', sendMessage);
+        document.getElementById('chatInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                const chatMessages = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'chat-message';
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">{{ session.user.name[:2].upper() }}</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-user">{{ session.user.name }}</span>
+                            <span class="message-time">${new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}</span>
+                        </div>
+                        <div class="message-text">${message}</div>
+                    </div>
+                `;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                input.value = '';
+            }
+        }
+        
+        // Inicializar timer quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            new RoomTimer();
+        });
+    </script>
+</body>
+</html>

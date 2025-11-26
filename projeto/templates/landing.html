@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Together - Transforme seu estudo em uma experiência colaborativa</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1>Study Together</h1>
+            </div>
+            <nav class="nav">
+                <a href="{{ url_for('login') }}" class="btn-login">Entrar</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Transforme a solidão do estudo em uma experiência colaborativa</h1>
+                <p>Conecte-se com outros estudantes, mantenha o foco e alcance seus objetivos juntos em nossa plataforma de estudo virtual.</p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('register') }}" class="btn-primary">Vamos Começar?</a>
+                    <a href="#como-funciona" class="btn-secondary">Saiba Mais</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="image-placeholder">
+                    <div class="study-room-preview">
+                        <div class="user-avatar user-1"></div>
+                        <div class="user-avatar user-2"></div>
+                        <div class="user-avatar user-3"></div>
+                        <div class="user-avatar user-4"></div>
+                        <div class="pomodoro-timer">25:00</div>
+                        <div class="chat-bubble">Vamos focar!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section class="problem-section">
+        <div class="container">
+            <h2>Você já sentiu isso estudando sozinho?</h2>
+            <div class="problem-cards">
+                <div class="problem-card">
+                    <div class="problem-icon">😔</div>
+                    <h3>Solidão</h3>
+                    <p>85% dos estudantes relatam sentir solidão durante estudos intensivos</p>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">⏰</div>
+                    <h3>Procrastinação</h3>
+                    <p>60% da procrastinação acontece por falta de accountability externo</p>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">📉</div>
+                    <h3>Baixa Retenção</h3>
+                    <p>Estudar sozinho reduz em 40% a retenção do conteúdo aprendido</p>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">🚫</div>
+                    <h3>Desmotivação</h3>
+                    <p>3 em cada 5 estudantes abandonam metas de estudo por desmotivação</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solution Section -->
+    <section class="solution-section" id="sobre">
+        <div class="container">
+            <div class="solution-content">
+                <h2>Nossa solução: Uma comunidade de estudo virtual</h2>
+                <p>O Study Together combina salas de estudo virtuais, técnicas de produtividade comprovadas e elementos de gamificação para criar uma experiência de aprendizado mais humana e eficaz.</p>
+                
+                <div class="solution-features">
+                    <div class="feature">
+                        <div class="feature-icon">👥</div>
+                        <div class="feature-text">
+                            <h3>Comunidade Ativa</h3>
+                            <p>Conecte-se com estudantes com objetivos similares</p>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">⏱️</div>
+                        <div class="feature-text">
+                            <h3>Pomodoro Sincronizado</h3>
+                            <p>Sessões de estudo focadas com pausas programadas</p>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">🏆</div>
+                        <div class="feature-text">
+                            <h3>Sistema de Gamificação</h3>
+                            <p>Ganhe pontos, badges e suba no ranking</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works" id="como-funciona">
+        <div class="container">
+            <h2>Como funciona</h2>
+            <p class="section-subtitle">Em menos de 2 minutos você está estudando com uma comunidade</p>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Cadastro Rápido</h3>
+                    <p>Crie seu perfil com interesses e disponibilidade</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Escolha sua Sala</h3>
+                    <p>Por matéria, objetivo ou estilo de estudo</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Conecte e Foque</h3>
+                    <p>Videochamada opcional, chat sempre ativo</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Estude no Ritmo Coletivo</h3>
+                    <p>Pomodoro sincronizado com a sala</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <h3>Celebre o Progresso</h3>
+                    <p>Ganhe pontos, badges e suba no ranking</p>
+                </div>
+            </div>
+            
+            <div class="cta-center">
+                <a href="{{ url_for('register') }}" class="btn-primary">Começar Agora</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Target Audience Section -->
+    <section class="audience-section" id="beneficios">
+        <div class="container">
+            <h2>Feito para você que está estudando</h2>
+            
+            <div class="audience-cards">
+                <div class="audience-card">
+                    <div class="audience-icon">🎓</div>
+                    <h3>Estudantes Universitários</h3>
+                    <p>Prestando provas difíceis e precisando de apoio</p>
+                </div>
+                <div class="audience-card">
+                    <div class="audience-icon">💼</div>
+                    <h3>Profissionais</h3>
+                    <p>Estudando para certificações e desenvolvimento</p>
+                </div>
+                <div class="audience-card">
+                    <div class="audience-icon">📚</div>
+                    <h3>Concurseiros</h3>
+                    <p>Em preparação intensiva para concursos públicos</p>
+                </div>
+                <div class="audience-card">
+                    <div class="audience-icon">🌟</div>
+                    <h3>Autodidatas</h3>
+                    <p>Que precisam de estrutura e comunidade</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Junte-se a milhares de estudantes</h2>
+                <p>Transforme sua rotina de estudos hoje mesmo</p>
+                <a href="{{ url_for('register') }}" class="btn-primary">Vamos Começar?</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h3>Study Together</h3>
+                    <p>Transformando a solidão do estudo em uma experiência colaborativa</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#sobre">Sobre</a>
+                    <a href="#como-funciona">Como Funciona</a>
+                    <a href="#beneficios">Benefícios</a>
+                    <a href="{{ url_for('login') }}">Entrar</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Study Together. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

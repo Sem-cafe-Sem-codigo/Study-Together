@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salas de Estudo - Study Together</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='estudo_novo.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Study Together</h2>
+            </div>
+            
+            <div class="sidebar-menu">
+                <div class="menu-section">
+                    <h3>Principal</h3>
+                    <a href="{{ url_for('dashboard') }}" class="menu-item">
+                        <i class="fas fa-home"></i>
+                        <span>Inicio</span>
+                    </a>
+                    <a href="{{ url_for('perfil') }}" class="menu-item">
+                        <i class="fas fa-user"></i>
+                        <span>Meu Perfil</span>
+                    </a>
+                    <a href="{{ url_for('study_tracker') }}" class="menu-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Monitoramento</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <h3>Estudos</h3>
+                     <a href="{{ url_for('materiais') }}" class="menu-item">
+                        <i class="fas fa-book"></i>
+                        <span>Materiais</span>
+                    </a>
+                    <a href="{{ url_for('study') }}" class="menu-item active">
+                        <i class="fas fa-users"></i>
+                        <span>Salas de Estudo</span>
+                    </a>
+                    <a href="{{ url_for('stuart') }}" class="menu-item">
+                        <i class="fas fa-robot"></i>
+                        <span>Chat IA (Stuart)</span>
+                    </a>
+                    <a href="{{ url_for('ranking') }}" class="menu-item">
+                        <i class="fas fa-trophy"></i>
+                        <span>Ranking</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="main-header">
+                <div class="header-left">
+                    <h1><i class="fas fa-users"></i> Salas de Estudo</h1>
+                    <p>Encontre companhia para estudar e mantenha o foco!</p>
+                </div>
+                <div class="header-right">
+                    <button class="btn-primary" onclick="document.getElementById('createRoomModal').style.display='flex'">
+                        <i class="fas fa-plus-circle"></i> Criar Nova Sala
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Banner de Boas-vindas -->
+                <div class="welcome-banner">
+                    <div class="banner-content">
+                        <div class="banner-icon">
+                            <i class="fas fa-users-cog"></i>
+                        </div>
+                        <div class="banner-text">
+                            <h2>Transforme a solidão em colaboração! 👥</h2>
+                            <p>Junte-se a estudantes com objetivos similares e alcance mais juntos</p>
+                        </div>
+                    </div>
+                    <div class="banner-stats">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-number">42</div>
+                                <div class="stat-label">Estudantes online</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-door-open"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-number">18</div>
+                                <div class="stat-label">Salas ativas</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-number">1.2k</div>
+                                <div class="stat-label">Horas estudadas</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>  
+                <!-- Salas Recentes -->
+                {% if recent_rooms %}
+                <div class="content-section"> 
+                    <div class="section-header">  
+                        <h2><i class="fas fa-history"></i> Continue de Onde Parou</h2>
+                        <span class="section-subtitle">Suas salas recentes</span>
+                    </div>
+                    <div class="rooms-grid recent-rooms">
+                        {% for room in recent_rooms %}
+                        <div class="room-card recent-room">
+                            <div class="room-badge recent-badge">
+                                <i class="fas fa-history"></i> Recente
+                            </div>
+                            <div class="room-header">
+                                <h3>{{ room.name }}</h3>
+                                <div class="room-meta-info">
+                                    <span class="last-joined">
+                                        <i class="fas fa-calendar-alt"></i> {{ room.last_joined }}
+                                    </span>
+                                    <span class="total-time">
+                                        <i class="fas fa-stopwatch"></i> {{ room.total_time }} estudados
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="room-actions">
+                                <a href="{{ url_for('study_room', room_id=room.id) }}" class="btn-primary">
+                                    <i class="fas fa-play"></i> Continuar Estudando
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Todas as Salas -->
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-door-open"></i> Salas Disponíveis</h2>
+                        <div class="section-controls">
+                            <span class="room-count">{{ study_rooms|length }} salas encontradas</span>
+                            <div class="filter-buttons">
+                                <button class="filter-btn active" data-filter="all">
+                                    <i class="fas fa-th"></i> Todas
+                                </button>
+                                <button class="filter-btn" data-filter="available">
+                                    <i class="fas fa-check-circle"></i> Disponíveis
+                                </button>
+                                <button class="filter-btn" data-filter="full">
+                                    <i class="fas fa-users"></i> Lotadas
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rooms-grid">
+                        {% for room in study_rooms %}
+                        <div class="room-card" data-status="{% if room.participants < room.max_participants %}available{% else %}full{% endif %}">
+                            <div class="room-badge-container">
+                                {% if room.participants < room.max_participants %}
+                                <span class="room-badge available">
+                                    <i class="fas fa-check-circle"></i> Disponível
+                                </span>
+                                {% else %}
+                                <span class="room-badge full">
+                                    <i class="fas fa-lock"></i> Lotada
+                                </span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="room-header">
+                                <h3>{{ room.name }}</h3>
+                                <p class="room-description">{{ room.description }}</p>
+                            </div>
+                            
+                            <div class="room-details">
+                                <div class="detail-item">
+                                    <div class="detail-icon participants-icon">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div class="detail-content">
+                                        <span class="detail-label">Participantes</span>
+                                        <span class="detail-value">{{ room.participants }}/{{ room.max_participants }}</span>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-icon level-icon">
+                                        <i class="fas fa-graduation-cap"></i>
+                                    </div>
+                                    <div class="detail-content">
+                                        <span class="detail-label">Nível</span>
+                                        <span class="detail-value">{{ room.level }}</span>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-icon timer-icon">
+                                        <i class="fas fa-{% if room.focus_timer %}stopwatch{% else %}infinity{% endif %}"></i>
+                                    </div>
+                                    <div class="detail-content">
+                                        <span class="detail-label">Timer</span>
+                                        <span class="detail-value">
+                                            {% if room.focus_timer %}
+                                            Pomodoro {{ room.current_timer }}
+                                            {% else %}
+                                            Livre
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if room.tags %}
+                            <div class="room-tags">
+                                {% for tag in room.tags %}
+                                <span class="room-tag"><i class="fas fa-tag"></i> {{ tag }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+
+                            <div class="room-actions"> 
+                                {% if room.participants < room.max_participants %}
+                                <a href="{{ url_for('study_room', room_id=room.id) }}" class="btn-primary">
+                                    <i class="fas fa-door-open"></i> Entrar na Sala
+                                </a>
+                                {% else %}
+                                <button class="btn-secondary" disabled>
+                                    <i class="fas fa-lock"></i> Sala Lotada
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Criar Sala -->
+    <div id="createRoomModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-plus-circle"></i> Criar Nova Sala de Estudo</h2>
+                <button class="close-modal" onclick="document.getElementById('createRoomModal').style.display='none'">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form class="create-room-form" method="POST" action="{{ url_for('study') }}">
+                <div class="form-group">
+                    <label for="room_name"><i class="fas fa-door-open"></i> Nome da Sala</label>
+                    <input type="text" id="room_name" name="name" placeholder="Ex: Matemática para ENEM" required>
+                </div>
+                <div class="form-group">
+                    <label for="room_description"><i class="fas fa-align-left"></i> Descrição</label>
+                    <textarea id="room_description" name="description" rows="3" placeholder="Descreva o objetivo da sala..." required></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="room_subject"><i class="fas fa-book"></i> Matéria</label>
+                        <input type="text" id="room_subject" name="subject" placeholder="Ex: Matemática" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="room_level"><i class="fas fa-graduation-cap"></i> Nível</label>
+                        <select id="room_level" name="level" required>
+                            <option value="">Selecione o nível</option>
+                            <option value="Iniciante">Iniciante</option>
+                            <option value="Intermediário">Intermediário</option>
+                            <option value="Avançado">Avançado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="max_participants"><i class="fas fa-users"></i> Máximo de Participantes</label>
+                        <input type="number" id="max_participants" name="max_participants" min="2" max="20" value="8" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-stopwatch"></i> Timer Pomodoro</label>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="focus_timer" name="focus_timer" value="true">
+                            <label for="focus_timer">Ativar timer de 25 minutos</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="document.getElementById('createRoomModal').style.display='none'">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-check"></i> Criar Sala
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Sistema de filtros
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active de todos
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const filter = this.dataset.filter;
+                const rooms = document.querySelectorAll('.room-card');
+                
+                rooms.forEach(room => {
+                    if (filter === 'all') {
+                        room.style.display = 'flex';
+                    } else {
+                        if (room.dataset.status === filter) {
+                            room.style.display = 'flex';
+                        } else {
+                            room.style.display = 'none';
+                        }
+                    }
+                });
+            });
+        });
+
+        // Fechar modal ao clicar fora
+        window.onclick = function(event) {
+            const modal = document.getElementById('createRoomModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

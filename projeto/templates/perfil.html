@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - Study Together</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='perfil.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar (mantendo igual ao dashboard) -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Study Together</h2>
+            </div>
+            
+            <div class="sidebar-menu">
+                <div class="menu-section">
+                    <h3>Principal</h3>
+                    <a href="{{ url_for('dashboard') }}" class="menu-item">
+                        <i class="fas fa-home"></i>
+                        <span>Inicio</span>
+                    </a>
+                    <a href="{{ url_for('perfil') }}" class="menu-item active">
+                        <i class="fas fa-user"></i>
+                        <span>Meu Perfil</span>
+                    </a>
+                    <a href="{{ url_for('study_tracker') }}" class="menu-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Monitoramento</span>
+                    </a>
+                </div>
+                
+                <div class="menu-section">
+                    <h3>Estudos</h3>
+                     <a href="{{ url_for('materiais') }}" class="menu-item">
+                        <i class="fas fa-book"></i>
+                        <span>Materiais</span>
+                    </a>
+                    <a href="{{ url_for('study') }}" class="menu-item">
+                        <i class="fas fa-users"></i>
+                        <span>Salas de Estudo</span>
+                    </a>
+                    <a href="{{ url_for('stuart') }}" class="menu-item">
+                        <i class="fas fa-robot"></i>
+                        <span>Chat IA (Stuart)</span>
+                    </a>
+                    <a href="{{ url_for('ranking') }}" class="menu-item">
+                        <i class="fas fa-trophy"></i>
+                        <span>Ranking</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-left">
+                    <h1>Meu Perfil</h1>
+                    <p>Gerencie suas informações pessoais</p>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <img src="https://ui-avatars.com/api/?name={% if session.user %}{{ session.user.name }}{% else %}Usuário{% endif %}&background=4F6DF5&color=fff" alt="Usuário">
+                        <span>Meu Perfil</span>
+                        <div class="user-menu">
+                            <a href="{{ url_for('perfil') }}">Informações</a>
+                            <a href="{{ url_for('logout') }}">Sair</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                {% if message %}
+                <div class="message {{ 'success' if message_type == 'success' else 'error' }}">
+                    {{ message }}
+                </div>
+                {% endif %}
+                
+                <!-- Informações do Perfil -->
+                <div class="content-section">
+                    <h2>Informações Pessoais</h2>
+                    <div class="profile-card">
+                        <form method="POST" class="profile-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="name">Nome Completo</label>
+                                    <input type="text" id="name" name="name" value="{{ user_data.name }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" id="email" name="email" value="{{ user_data.email }}" readonly>
+                                    <small>O email não pode ser alterado</small>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="interests">Áreas de Interesse</label>
+                                    <input type="text" id="interests" name="interests" value="{{ user_data.interests }}" placeholder="Ex: Programação, Matemática, Direito...">
+                                </div>
+                                <div class="form-group">
+                                    <label for="level">Nível de Experiência</label>
+                                    <select id="level" name="level">
+                                        <option value="iniciante" {% if user_data.level == 'iniciante' %}selected{% endif %}>Iniciante</option>
+                                        <option value="intermediário" {% if user_data.level == 'intermediário' %}selected{% endif %}>Intermediário</option>
+                                        <option value="avançado" {% if user_data.level == 'avançado' %}selected{% endif %}>Avançado</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary">Salvar Alterações</button>
+                                <a href="{{ url_for('dashboard') }}" class="btn-secondary">Voltar ao inicio</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Estatísticas do Usuário -->
+                <div class="content-section">
+                    <h2>Minhas Estatísticas</h2>
+                    <div class="stats-cards">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>{{ user_data.streak }} dias</h3>
+                                <p>Sequência de estudos</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>{{ user_data.points }} pontos</h3>
+                                <p>Total acumulado</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>{{ data_formatada }}</h3>
+                                <p>Membro desde</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

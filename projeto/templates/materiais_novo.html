@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materiais - Study Together</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='materiais.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Study Together</h2>
+            </div>
+
+            <div class="sidebar-menu">
+                <div class="menu-section">
+                    <h3>Principal</h3>
+                    <a href="{{ url_for('dashboard') }}" class="menu-item">
+                        <i class="fas fa-home"></i>
+                        <span>Inicio</span>
+                    </a>
+                    <a href="{{ url_for('perfil') }}" class="menu-item">
+                        <i class="fas fa-user"></i>
+                        <span>Meu Perfil</span>
+                    </a>
+                    <a href="{{ url_for('study_tracker') }}" class="menu-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Monitoramento</span>
+                    </a>
+                </div>
+
+                <div class="menu-section">
+                    <h3>Estudos</h3>
+                    <a href="{{ url_for('materiais') }}" class="menu-item active">
+                        <i class="fas fa-book"></i>
+                        <span>Materiais</span>
+                    </a>
+                    <a href="{{ url_for('study') }}" class="menu-item">
+                        <i class="fas fa-users"></i>
+                        <span>Salas de Estudo</span>
+                    </a>
+                    <a href="{{ url_for('stuart') }}" class="menu-item">
+                        <i class="fas fa-robot"></i>
+                        <span>Chat IA (Stuart)</span>
+                    </a>
+                    <a href="{{ url_for('ranking') }}" class="menu-item">
+                        <i class="fas fa-trophy"></i>
+                        <span>Ranking</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-left">
+                    <h1>Materiais de Estudo</h1>
+                    <p>Organize seus materiais e recursos de estudo</p>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <img src="https://ui-avatars.com/api/?name={{ session.user.name }}&background=8B46FF&color=fff" alt="Usuário">
+                        <span>{{ session.user.name }}</span>
+                        <div class="user-menu">
+                            <a href="{{ url_for('perfil') }}">Meu Perfil</a>
+                            <a href="{{ url_for('logout') }}">Sair</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Adicionar Novo Material -->
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2>Adicionar Novo Material</h2>
+                    </div>
+                    <form method="POST" action="{{ url_for('materiais') }}" class="material-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="material_title">Título do Material</label>
+                                <input type="text" id="material_title" name="title" placeholder="Ex: Apostila de Matemática" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="material_type">Tipo</label>
+                                <select id="material_type" name="type" required>
+                                    <option value="">Selecione o tipo</option>
+                                    <option value="pdf">PDF</option>
+                                    <option value="video">Vídeo</option>
+                                    <option value="link">Link</option>
+                                    <option value="texto">Texto</option>
+                                    <option value="exercicio">Exercício</option>
+                                    <option value="apostila">Apostila</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="material_description">Descrição</label>
+                            <textarea id="material_description" name="description" rows="3" placeholder="Descreva o material..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="material_url">URL ou Conteúdo</label>
+                            <input type="text" id="material_url" name="url" placeholder="https://exemplo.com/material ou conteúdo direto">
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-plus"></i>
+                                Adicionar Material
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Lista de Materiais -->
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2>Meus Materiais</h2>
+                        <span class="material-count">
+                            {% if user_data and user_data.materials %}
+                                {{ user_data.materials|length }} materiais
+                            {% else %}
+                                0 materiais
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    {% if user_data and user_data.materials and user_data.materials|length > 0 %}
+                    <div class="materials-grid">
+                        {% for material in user_data.materials %}
+                        <div class="material-card">
+                            <div class="material-header">
+                                <div class="material-icon">
+                                    {% if material.type == 'pdf' %}
+                                        <i class="fas fa-file-pdf"></i>
+                                    {% elif material.type == 'video' %}
+                                        <i class="fas fa-video"></i>
+                                    {% elif material.type == 'link' %}
+                                        <i class="fas fa-link"></i>
+                                    {% elif material.type == 'exercicio' %}
+                                        <i class="fas fa-pencil-alt"></i>
+                                    {% elif material.type == 'apostila' %}
+                                        <i class="fas fa-book"></i>
+                                    {% else %}
+                                        <i class="fas fa-file-alt"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="material-actions">
+                                    <button class="btn-icon" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-icon" title="Excluir" onclick="confirmDelete('{{ material.id }}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <h3>{{ material.title }}</h3>
+                            <p>{{ material.description }}</p>
+                            <div class="material-meta">
+                                <span class="material-type">{{ material.type|upper }}</span>
+                                <span class="material-date">
+                                    {% if material.created_at %}
+                                        {{ material.created_at[:10] }}
+                                    {% else %}
+                                        Data não informada
+                                    {% endif %}
+                                </span>
+                            </div>
+                            {% if material.url %}
+                            <div class="material-link">
+                                <a href="{{ material.url }}" target="_blank" class="btn-outline">
+                                    <i class="fas fa-external-link-alt"></i>
+                                    Acessar Material
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-folder-open"></i>
+                        <p>Nenhum material adicionado ainda</p>
+                        <p>Comece adicionando seu primeiro material acima!</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Adiciona a data atual como padrão para novos materiais
+        document.addEventListener('DOMContentLoaded', function() {
+            // Foca no primeiro campo do formulário
+            document.getElementById('material_title').focus();
+            
+            // Adiciona contador de caracteres para descrição
+            const descTextarea = document.getElementById('material_description');
+            if (descTextarea) {
+                descTextarea.addEventListener('input', function() {
+                    const maxLength = 200;
+                    const currentLength = this.value.length;
+                    if (currentLength > maxLength) {
+                        this.value = this.value.substring(0, maxLength);
+                    }
+                });
+            }
+        });
+
+        // Confirmação para excluir material
+        function confirmDelete(materialId) {
+            if (confirm('Tem certeza que deseja excluir este material?')) {
+                // Aqui você pode adicionar a lógica para excluir o material
+                console.log('Excluindo material:', materialId);
+            }
+        }
+
+        // Fechar menu de usuário ao clicar fora
+        document.addEventListener('click', function(event) {
+            const userInfo = document.querySelector('.user-info');
+            const userMenu = document.querySelector('.user-menu');
+            
+            if (!userInfo.contains(event.target)) {
+                userMenu.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

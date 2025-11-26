@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Study Together{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Study Together</h1>
+            <p>Conecte-se com outros estudantes e transforme sua rotina de estudos</p>
+        </div>
+        
+        {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+        {% endif %}
+        
+        <form method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Senha</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit" class="btn-primary">Entrar</button>
+        </form>
+        
+        <div class="auth-footer">
+            <p>Não tem uma conta? <a href="{{ url_for('register') }}">Cadastre-se</a></p>
+        </div>
+    </div>
+    
+    <div class="auth-features">
+        <h2>Estude Juntos, Cresça Juntos</h2>
+        <div class="feature-list">
+            <div class="feature-item">
+                <div class="feature-icon" style="background-color: #8B46FF;">
+                    👥
+                </div>
+                <h3>Comunidade</h3>
+                <p>Conecte-se com estudantes com objetivos similares</p>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-icon" style="background-color: #2ED573;">
+                    ⏱️
+                </div>
+                <h3>Produtividade</h3>
+                <p>Técnicas comprovadas como Pomodoro para melhor foco</p>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-icon" style="background-color: #FF6B35;">
+                    🏆
+                </div>
+                <h3>Gamificação</h3>
+                <p>Ganhe pontos, badges e suba no ranking</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
